@@ -12,39 +12,49 @@ class UInputMappingContext;
 class UInputAction;
 class UCameraComponent;
 class USpringArmComponent;
+class UGroomComponent;
 
 UCLASS()
-class RPGDEMO_API ADemoCharacter : public ACharacter {
-    GENERATED_BODY()
+class RPGDEMO_API ADemoCharacter : public ACharacter
+{
+	GENERATED_BODY()
 
 public:
-    // Sets default values for this character's properties
-    ADemoCharacter();
+	// Sets default values for this character's properties
+	ADemoCharacter();
 
 
-    // Called every frame
-    virtual void Tick(float DeltaTime) override;
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 
-    // Called to bind functionality to input
-    virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
-    // Called when the game starts or when spawned
-    virtual void BeginPlay() override;
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 
-    void move(const FInputActionValue& input_value);
+	void move(const FInputActionValue& input_value);
+	void look(const FInputActionValue& input_value);
+	void jump(const FInputActionValue& input_value);
 
-    void look(const FInputActionValue& input_value);
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputMappingContext* input_mapping_context_ = nullptr;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* movement_action_ = nullptr;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* look_action_ = nullptr;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* jump_action_ = nullptr;
 
-    UPROPERTY(EditAnywhere, Category = "Input")
-    UInputMappingContext* movement_input_context_ = nullptr;
-    UPROPERTY(EditAnywhere, Category = "Input")
-    UInputAction* movement_action_ = nullptr;
-    UPROPERTY(EditAnywhere, Category = "Input")
-    UInputAction* look_action_ = nullptr;
+private:
+	UPROPERTY(EditAnywhere, Category = "Camera")
+	USpringArmComponent* spring_arm_component_ = nullptr;
+	UPROPERTY(EditAnywhere, Category = "Camera")
+	UCameraComponent* camera_component_ = nullptr;
 
-    UPROPERTY(EditAnywhere, Category = "Camera")
-    USpringArmComponent* spring_arm_component_ = nullptr;
-    UPROPERTY(EditAnywhere, Category = "Camera")
-    UCameraComponent* camera_component_ = nullptr;
+	UPROPERTY(VisibleAnywhere, Category = "Appearance")
+	UGroomComponent* hair_component_ = nullptr;
+	UPROPERTY(VisibleAnywhere, Category = "Appearance")
+	UGroomComponent* eyebrows_component_ = nullptr;
 };
