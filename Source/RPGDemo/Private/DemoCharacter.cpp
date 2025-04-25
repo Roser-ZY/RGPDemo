@@ -8,6 +8,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GroomComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Item/Weapon.h"
 
 // Sets default values
 ADemoCharacter::ADemoCharacter()
@@ -50,6 +52,15 @@ void ADemoCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Binde delegates.
+	UCapsuleComponent* capsule_component = GetCapsuleComponent();
+	if (capsule_component)
+	{
+		capsule_component->OnComponentBeginOverlap.AddDynamic(this, &ADemoCharacter::onCapsuleBeginOverlap);
+		capsule_component->OnComponentEndOverlap.AddDynamic(this, &ADemoCharacter::onCapsuleEndOverlap);
+	}
+
+	// Add the input mapping context.
 	if (input_mapping_context_)
 	{
 		APlayerController* player_controller = Cast<APlayerController>(Controller);
@@ -89,7 +100,7 @@ void ADemoCharacter::move(const FInputActionValue& input_value)
 		AddMovementInput(forward_direction, movement_vector.Y);
 		AddMovementInput(right_direction, movement_vector.X);
 
-		UE_LOG(LogTemp, Display, TEXT("Forward: %f, Right: %f"), movement_vector.Y, movement_vector.X);
+		// UE_LOG(LogTemp, Display, TEXT("Forward: %f, Right: %f"), movement_vector.Y, movement_vector.X);
 	}
 }
 
@@ -107,6 +118,22 @@ void ADemoCharacter::jump(const FInputActionValue& input_value)
 	{
 		Jump();
 	}
+}
+
+void ADemoCharacter::onCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	AWeapon* weapon = Cast<AWeapon>(OtherActor);
+	if (weapon)
+	{
+		current_state_ = ECharacterState::EquippedOneHandWeapon;
+		GEngine->AddOnScreenDebugMessage(0, 30, FColor::Cyan, TEXT("Demo character equip the weapon."));
+	}
+}
+
+void ADemoCharacter::onCapsuleEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
 }
 
 // Called every frame

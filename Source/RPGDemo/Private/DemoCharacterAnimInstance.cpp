@@ -21,11 +21,12 @@ void UDemoCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	if (character_movement_component == nullptr)
+	if (demo_character == nullptr || character_movement_component == nullptr)
 	{
 		return;
 	}
 	// Get the xy length of the velocity.
 	ground_speed = UKismetMathLibrary::VSizeXY(character_movement_component->Velocity);
 	is_falling = character_movement_component->IsFalling();
+	character_state = demo_character->get_current_state();
 }

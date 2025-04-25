@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DemoCharacter.h"
 #include "Animation/AnimInstance.h"
+#include "CharacterTypes.h"
 #include "DemoCharacterAnimInstance.generated.h"
 
 class UCharacterMovementComponent;
@@ -28,4 +30,7 @@ public:
 	float ground_speed = 0.0f;
 	UPROPERTY(BlueprintReadOnly)
 	bool is_falling = false;
+	
+	UPROPERTY(BlueprintReadOnly)
+	ECharacterState character_state = ECharacterState::Unequipped;
 };
