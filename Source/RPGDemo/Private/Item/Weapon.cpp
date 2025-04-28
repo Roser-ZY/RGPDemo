@@ -3,24 +3,71 @@
 
 #include "Item/Weapon.h"
 #include "DemoCharacter.h"
+#include "Components/BoxComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
+
+AWeapon::AWeapon() {
+    trace_box_component_ = CreateDefaultSubobject<UBoxComponent>(TEXT("Weapon Trace Box"));
+    trace_box_component_->SetupAttachment(RootComponent);
+    // Set the collision preset.
+    trace_box_component_->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    trace_box_component_->SetCollisionResponseToAllChannels(ECR_Overlap);
+    trace_box_component_->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+
+    box_trace_start_ = CreateDefaultSubobject<USceneComponent>(TEXT("Box Trace Start"));
+    box_trace_start_->SetupAttachment(RootComponent);
+    box_trace_end_ = CreateDefaultSubobject<USceneComponent>(TEXT("Box Trace End"));
+    box_trace_end_->SetupAttachment(RootComponent);
+}
+
+void AWeapon::setWeaponCollisionEnabled(ECollisionEnabled::Type collision_enabled) {
+    if (is_equipped && trace_box_component_) {
+        trace_box_component_->SetCollisionEnabled(collision_enabled);
+    }
+}
+
+void AWeapon::BeginPlay() {
+    Super::BeginPlay();
+
+    if (trace_box_component_) {
+        trace_box_component_->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::onBoxBeginOverlap);
+    }
+}
+
 
 void AWeapon::onSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-                                   const FHitResult& SweepResult)
-{
-	Super::onSphereBeginOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+                                   const FHitResult& SweepResult) {
+    Super::onSphereBeginOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 
-	ADemoCharacter* demo_character = Cast<ADemoCharacter>(OtherActor);
-	if (demo_character)
-	{
-		// Note: The AttachToComponent() is same as Attach Component To Component in Blueprint.
-		FAttachmentTransformRules transform_rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
-		static_mesh_component_->AttachToComponent(demo_character->GetMesh(), transform_rules, FName("right_hand_socket"));
-	}
+    if (is_equipped) {
+        return;
+    }
+    ADemoCharacter* demo_character = Cast<ADemoCharacter>(OtherActor);
+    if (demo_character) {
+        // Note: The AttachToComponent() is same as Attach Component To Component in Blueprint.
+        FAttachmentTransformRules transform_rules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget,
+                                                  EAttachmentRule::SnapToTarget, true);
+        static_mesh_component_->AttachToComponent(demo_character->GetMesh(), transform_rules,
+                                                  FName("right_hand_socket"));
+    }
+    is_equipped = true;
 }
 
 void AWeapon::onSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	Super::onSphereEndOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex);
+                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) {
+    Super::onSphereEndOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex);
+}
+
+void AWeapon::onBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                const FHitResult& SweepResult) {
+    const FVector start = box_trace_start_->GetComponentLocation();
+    const FVector end = box_trace_end_->GetComponentLocation();
+    TArray<AActor*> ignored_actors;
+    ignored_actors.Add(this);
+    FHitResult box_hit;
+    UKismetSystemLibrary::BoxTraceSingle(this, start, end, FVector(5.0f, 5.0f, 5.0f),
+                                         box_trace_start_->GetComponentRotation(), ETraceTypeQuery::TraceTypeQuery1,
+                                         false, ignored_actors, EDrawDebugTrace::ForDuration, box_hit, true);
 }

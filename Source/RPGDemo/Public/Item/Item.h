@@ -9,33 +9,32 @@
 class USphereComponent;
 
 UCLASS()
-class RPGDEMO_API AItem : public AActor
-{
-	GENERATED_BODY()
+class RPGDEMO_API AItem : public AActor {
+    GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
-	AItem();
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+    // Sets default values for this actor's properties
+    AItem();
+    // Called every frame
+    virtual void Tick(float DeltaTime) override;
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
 
-	UFUNCTION()
-	virtual void onSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	                                  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-	                                  const FHitResult& SweepResult);
+    UFUNCTION()
+    virtual void onSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                      UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                      const FHitResult& SweepResult);
 
-	UFUNCTION()
-	virtual void onSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	                                UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+    UFUNCTION()
+    virtual void onSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UStaticMeshComponent* static_mesh_component_;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	USphereComponent* sphere_component_;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    UStaticMeshComponent* static_mesh_component_;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    USphereComponent* sphere_component_;
 };
