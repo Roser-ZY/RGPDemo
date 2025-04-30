@@ -6,7 +6,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
-void UDemoCharacterAnimInstance::NativeInitializeAnimation() {
+void UDemoCharacterAnimInstance::NativeInitializeAnimation()
+{
     Super::NativeInitializeAnimation();
 
     demo_character = Cast<ADemoCharacter>(TryGetPawnOwner());
@@ -15,7 +16,8 @@ void UDemoCharacterAnimInstance::NativeInitializeAnimation() {
     }
 }
 
-void UDemoCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds) {
+void UDemoCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+{
     Super::NativeUpdateAnimation(DeltaSeconds);
 
     if (demo_character == nullptr || character_movement_component == nullptr) {

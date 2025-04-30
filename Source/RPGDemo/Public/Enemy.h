@@ -4,24 +4,39 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/HitInterface.h"
 #include "Enemy.generated.h"
 
+
+
+class UWidgetComponent;
+class UAttributeComponent;
 UCLASS()
-class RPGDEMO_API AEnemy : public ACharacter {
+class RPGDEMO_API AEnemy : public ACharacter, public IHitInterface {
     GENERATED_BODY()
 
 public:
     // Sets default values for this character's properties
     AEnemy();
 
-protected:
-    // Called when the game starts or when spawned
-    virtual void BeginPlay() override;
-
-public:
     // Called every frame
     virtual void Tick(float DeltaTime) override;
 
     // Called to bind functionality to input
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+    virtual void getHit_Implementation(const FVector& impact_point) override;
+
+protected:
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
+
+    UPROPERTY(EditAnywhere, Category = "Animation")
+    UAnimMontage* anim_montage_ = nullptr;
+
+    UPROPERTY(VisibleAnywhere, Category = "Attribute")
+    TObjectPtr<UAttributeComponent> attribute_component_;
+
+    UPROPERTY(VisibleAnywhere, Category = "HUD")
+    TObjectPtr<UWidgetComponent> health_bar_widget_;
 };

@@ -4,9 +4,11 @@
 #include "Item/Weapon.h"
 #include "DemoCharacter.h"
 #include "Components/BoxComponent.h"
+#include "Interfaces/HitInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-AWeapon::AWeapon() {
+AWeapon::AWeapon()
+{
     trace_box_component_ = CreateDefaultSubobject<UBoxComponent>(TEXT("Weapon Trace Box"));
     trace_box_component_->SetupAttachment(RootComponent);
     // Set the collision preset.
@@ -20,13 +22,15 @@ AWeapon::AWeapon() {
     box_trace_end_->SetupAttachment(RootComponent);
 }
 
-void AWeapon::setWeaponCollisionEnabled(ECollisionEnabled::Type collision_enabled) {
+void AWeapon::setWeaponCollisionEnabled(ECollisionEnabled::Type collision_enabled)
+{
     if (is_equipped && trace_box_component_) {
         trace_box_component_->SetCollisionEnabled(collision_enabled);
     }
 }
 
-void AWeapon::BeginPlay() {
+void AWeapon::BeginPlay()
+{
     Super::BeginPlay();
 
     if (trace_box_component_) {
@@ -37,7 +41,8 @@ void AWeapon::BeginPlay() {
 
 void AWeapon::onSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-                                   const FHitResult& SweepResult) {
+                                   const FHitResult& SweepResult)
+{
     Super::onSphereBeginOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 
     if (is_equipped) {
@@ -55,19 +60,28 @@ void AWeapon::onSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 }
 
 void AWeapon::onSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) {
+                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
     Super::onSphereEndOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex);
 }
 
 void AWeapon::onBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-                                const FHitResult& SweepResult) {
+                                const FHitResult& SweepResult)
+{
     const FVector start = box_trace_start_->GetComponentLocation();
     const FVector end = box_trace_end_->GetComponentLocation();
     TArray<AActor*> ignored_actors;
     ignored_actors.Add(this);
     FHitResult box_hit;
     UKismetSystemLibrary::BoxTraceSingle(this, start, end, FVector(5.0f, 5.0f, 5.0f),
-                                         box_trace_start_->GetComponentRotation(), ETraceTypeQuery::TraceTypeQuery1,
-                                         false, ignored_actors, EDrawDebugTrace::ForDuration, box_hit, true);
+                                         box_trace_start_->GetComponentRotation(), TraceTypeQuery1, false,
+                                         ignored_actors, EDrawDebugTrace::ForDuration, box_hit, true);
+    if (box_hit.GetActor()) {
+        IHitInterface* hit_interface = Cast<IHitInterface>(box_hit.GetActor());
+        if (hit_interface) {
+            hit_interface->Execute_getHit(box_hit.GetActor(), box_hit.ImpactPoint);
+        }
+        createField(box_hit.ImpactPoint);
+    }
 }

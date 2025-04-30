@@ -21,18 +21,21 @@ public:
     void setWeaponCollisionEnabled(ECollisionEnabled::Type collision_enabled);
 
 protected:
-    void BeginPlay() override;
+    virtual void BeginPlay() override;
 
-    void onSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                              UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-                              const FHitResult& SweepResult) override;
+    virtual void onSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                      UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                      const FHitResult& SweepResult) override;
 
-    void onSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                            UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
+    virtual void onSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
     UFUNCTION()
     void onBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                            int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+    UFUNCTION(BlueprintImplementableEvent)
+    void createField(const FVector& field_location);
 
     UPROPERTY(EditAnywhere)
     bool is_equipped = false;
