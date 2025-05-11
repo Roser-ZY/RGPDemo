@@ -517,3 +517,5 @@ DerivedDataCache/
 *.exe
 *.out
 *.appgit
+
+.DS_Store
